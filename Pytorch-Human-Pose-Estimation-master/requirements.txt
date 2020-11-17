@@ -1,0 +1,7 @@
+pytorch
+torchvision
+scipy
+configargparse
+progress
+json_tricks
+Cython 
