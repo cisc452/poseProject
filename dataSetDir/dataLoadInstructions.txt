@@ -1,0 +1,2 @@
+Please put the MPII dataset in this folder.
+more detailed instructions to come once we have finished downloading the dataset

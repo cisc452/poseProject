@@ -3,7 +3,7 @@ expID: debug
 
 visdom: 0
 
-dataDir: ../data2
+dataDir: ../dataSetDir
 
 maxTranslate: 0.02
 maxScale: 0.25
