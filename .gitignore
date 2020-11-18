@@ -1,1 +1,5 @@
 mpii_human_pose_v1/
+Pytorch-Human-Pose-Estimation-master/dataSetDir/mpii
+Pytorch-Human-Pose-Estimation-master/exp/
+Pytorch-Human-Pose-Estimation-master/models/__pycache__/
+Pytorch-Human-Pose-Estimation-master/models/modules/__pycache__/
