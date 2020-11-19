@@ -20,7 +20,7 @@ TrainDataLoader, ValDataLoader = Builder.DataLoaders()
 Epoch = Builder.Epoch()
 
 
-Model = Model.to(opts.gpuid)
+Model = Model.to('cuda:0')
 
 # opts.saveDir = os.path.join(opts.saveDir, os.path.join(opts.model, 'logs_{}'.format(datetime.datetime.now().isoformat())))
 File = os.path.join(opts.saveDir, 'log.txt')
