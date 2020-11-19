@@ -3,7 +3,7 @@ expID: debug
 
 visdom: 0
 
-dataDir: dataSetDir
+dataDir: ../dataSetDir
 
 maxTranslate: 0.02
 maxScale: 0.25
@@ -27,6 +27,6 @@ gpuid: 1
 nEpochs: 200
 
 
-worldCoors = dataSetDir/mpii/pii/worldCoods.mat
-headSize = dataSetDir/mpii/pii/headsize.mat
+worldCoors = ../mpii/worldCoods.mat
+headSize = ../mpii/headsize.mat
 
