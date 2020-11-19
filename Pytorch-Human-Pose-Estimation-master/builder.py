@@ -41,8 +41,6 @@ class Builder(object):
 		PCKinstance = metrics.PCK(self.opts)
 		if self.opts.dataset=='MPII':
 			return {'PCK' : getattr(PCKinstance, self.opts.model), 'PCKh' : getattr(PCKhinstance, self.opts.model)}         
-		if self.opts.dataset=='COCO':
-			return {'PCK' : getattr(PCKinstance, self.opts.model)}
 			
 	def Optimizer(self, Model):
 		TrainableParams = filter(lambda p: p.requires_grad, Model.parameters())

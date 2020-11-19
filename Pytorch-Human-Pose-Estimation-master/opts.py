@@ -73,7 +73,7 @@ class opts():
 
 
 ######## DataLoader Parameters
-		self.parser.add('--dataset', help='MPII or COCO')
+		self.parser.add('--dataset', help='MPII')
 		self.parser.add('--shuffle', type=int, help='Shuffle the data during training')
 		self.parser.add('--nThreads', type=int, help='How many threads to use for Dataloader')
 
