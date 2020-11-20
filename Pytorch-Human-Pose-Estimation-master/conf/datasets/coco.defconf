@@ -3,7 +3,8 @@ expID: debug
 
 visdom: 0
 
-dataDir: ../data/coco
+dataDir: /content/poseProject/Pytorch-Human-Pose-Estimation-master/data/coco
+
 maxScale: 0.3
 maxRotate: 40
 maxTranslate: 0.02
@@ -20,5 +21,5 @@ shuffle: 1
 
 nThreads: 4
 
-gpuid: 1
+gpuid: 0
 nEpochs: 200
