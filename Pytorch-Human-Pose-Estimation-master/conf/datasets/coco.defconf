@@ -3,7 +3,7 @@ expID: debug
 
 visdom: 0
 
-dataDir: ../cocoData
+dataDir: ../data/coco
 maxScale: 0.3
 maxRotate: 40
 maxTranslate: 0.02
