@@ -13,8 +13,11 @@ class BnReluConv(nn.Module):
 				self.stride = stride
 				self.padding = padding
 
+				#apply batch normalization to input to improve training
 				self.bn = nn.BatchNorm2d(self.inChannels)
+				#apply convolution
 				self.conv = nn.Conv2d(self.inChannels, self.outChannels, self.kernelSize, self.stride, self.padding)
+				#apply relu activation function
 				self.relu = nn.ReLU()
 
 		def forward(self, x):
@@ -69,6 +72,7 @@ class Residual(nn.Module):
 
 		def forward(self, x):
 				out = 0
+				#apply a convolution to the input
 				out = out + self.cb(x)
 				out = out + self.skip(x)
 				return out

@@ -21,6 +21,7 @@ class Trainer(object):
                 with torch.no_grad():
                         self._epoch(valdataloader, -1, 'val')
 
+        #train the network
         def train(self, traindataloader, valdataloader, startepoch, endepoch):
                 for epoch in range(startepoch, endepoch+1):
 
@@ -74,6 +75,7 @@ class Trainer(object):
                         model = self.model.to(self.gpu)
                         data = data.to(self.gpu, non_blocking=True).float()
                         target = target.to(self.gpu, non_blocking=True).float()
+                        #this is where the forward function of the model is called
                         output = model(data)
 
                         loss = self.Loss(output, target, meta1.to(self.gpu, non_blocking=True).float().unsqueeze(-1))

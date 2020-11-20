@@ -12,6 +12,7 @@ class Loss(object):
                 meta = 1 if self.opts.dataset == 'MPII' else meta
                 loss = 0
                 for i in range(self.opts.nStack):
+                        #stacked hourglass uses MSE(AKA l2) for its loss function
                         loss += F.mse_loss(output[i]*meta, target*meta)
                 return loss
 

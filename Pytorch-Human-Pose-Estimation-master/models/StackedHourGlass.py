@@ -26,9 +26,11 @@ class Hourglass(nn.Module):
         """
         For the skip connection, a residual module (or sequence of residuaql modules)
         """
-
+        # residual modules are used to pass the original image to subsequent modules
+        # this is done to maintain the spatial relationship between features
         _skip = []
         for _ in range(self.nModules):
+            #add the residual modules to the network
             _skip.append(M.Residual(self.nChannels, self.nChannels))
 
         self.skip = nn.Sequential(*_skip)
@@ -39,7 +41,7 @@ class Hourglass(nn.Module):
             either pass through Hourglass of numReductions-1
             or pass through M.Residual Module or sequence of Modules
         """
-
+        # pool the image down to a lower resolution denoted by the window size of pool kernel
         self.mp = nn.MaxPool2d(self.poolKernel, self.poolStride)
 
         _afterpool = []
@@ -49,13 +51,15 @@ class Hourglass(nn.Module):
         self.afterpool = nn.Sequential(*_afterpool)
 
         if (numReductions > 1):
+            # recursively create downsampling layers within the hourglass
             self.hg = Hourglass(self.nChannels, self.numReductions-1, self.nModules, self.poolKernel, self.poolStride)
         else:
+            #base case
             _num1res = []
             for _ in range(self.nModules):
                 _num1res.append(M.Residual(self.nChannels,self.nChannels))
 
-            self.num1res = nn.Sequential(*_num1res)  # doesnt seem that important ?
+            self.num1res = nn.Sequential(*_num1res)
 
         """
         Now another M.Residual Module or sequence of M.Residual Modules
@@ -94,11 +98,11 @@ class StackedHourGlass(nn.Module):
 	"""docstring for StackedHourGlass"""
 	def __init__(self, nChannels, nStack, nModules, numReductions, nJoints):
 		super(StackedHourGlass, self).__init__()
-		self.nChannels = nChannels
-		self.nStack = nStack
-		self.nModules = nModules
-		self.numReductions = numReductions
-		self.nJoints = nJoints
+		self.nChannels = nChannels # number of input chanels
+		self.nStack = nStack # number of hourglasses to stack
+		self.nModules = nModules # number of residual modules within the hourglass
+		self.numReductions = numReductions # number of times the images are downsampled and upsampled
+		self.nJoints = nJoints # number of joints to predict
 
 		self.start = M.BnReluConv(3, 64, kernelSize = 7, stride = 2, padding = 3)
 
@@ -109,6 +113,7 @@ class StackedHourGlass(nn.Module):
 
 		_hourglass, _Residual, _lin1, _chantojoints, _lin2, _jointstochan = [],[],[],[],[],[]
 
+        #create the stacks of hourglass networks
 		for _ in range(self.nStack):
 			_hourglass.append(Hourglass(self.nChannels, self.numReductions, self.nModules))
 			_ResidualModules = []

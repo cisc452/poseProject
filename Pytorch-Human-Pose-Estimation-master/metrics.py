@@ -87,7 +87,7 @@ class PCKh(object):
 
 
 
-
+#metric for the coco dataset
 class PCK(object):
     """docstring for PCK"""
     def __init__(self, opts):
