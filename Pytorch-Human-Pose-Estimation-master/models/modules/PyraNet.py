@@ -6,8 +6,12 @@ import torch.nn.functional as F
 
 class BnReluConv(nn.Module):
     '''
-        BnReluConv: class used to implement the BN-ReLU-Convolution layer
-			- can be 1x1 or 3x3 (given by kernel size)
+		BnReluPyra: ensures that convolution is preceeded by:
+			- batch normalization AND
+			- ReLu
+
+		Implementing these preceeding steps stops the variance explosion that occurrs when
+		summing the outputs of the two residual units (outputs from each branch) in the PRM
     '''
 
     def __init__(self, inChannels, outChannels, kernelSize=1, stride=1, padding=0):
@@ -69,13 +73,19 @@ class Pyramid(nn.Module):
 
 class BnReluPyra(nn.Module):
 	'''
-		BnReluPyra: calls the Pyramid class with the needed setup steps
+		BnReluPyra: ensures that when the Pyramid() class is called it is preceeded by:
+			- batch normalization AND 
+			- ReLu
+			
+		Implementing these preceeding steps stops the variance explosion that occurrs when
+		summing the outputs of the two residual units (outputs from each branch) in the PRM
 	'''
     def __init__(self, D, cardinality, inputRes):
         super(BnReluPyra, self).__init__()
         self.D = D
         self.cardinality = cardinality
         self.inputRes = inputRes
+
         self.bn = nn.BatchNorm2d(self.D)
         self.relu = nn.ReLU()
         self.pyra = Pyramid(self.D, self.cardinality, self.inputRes)
