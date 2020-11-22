@@ -4,59 +4,55 @@ import torch.nn as nn
 import torch.nn.functional as F
 import models.modules.PyraNet as M
 
-'''
-General Structure:
-	1. Convolution layer
-	2. Pyramid Residual Module + Pooling
-	3. Pyramid Residual Module
-	4. Hourglass stack 1 - score maps of body joint locations are produced at the end of 
-		each hourglass, and a squared error loss is also attached in each stack of 
-		hourglass
-	.
-	.
-	.
-	M. Hourglass stack n
+# General Structure:
+# 	1. Convolution layer
+# 	2. Pyramid Residual Module + Pooling
+# 	3. Pyramid Residual Module
+# 	4. Hourglass stack 1 - score maps of body joint locations are produced at the end of
+# 		each hourglass, and a squared error loss is also attached in each stack of
+# 		hourglass
+# 	.
+# 	.
+# 	.
+# 	M. Hourglass stack n
 
-General Hourglass Structure: hourglass network aims at capturing informatio at every scale 
-	in feed-forward fashion (uses the proposed Pyramid Residual Module (PRMs) as a building 
-	block)
+# General Hourglass Structure: hourglass network aims at capturing informatio at every scale
+# 	in feed-forward fashion (uses the proposed Pyramid Residual Module (PRMs) as a building
+# 	block)
 
-	1. bottom up processing by subsampling the feature maps
-	2. top down processing by upsampling the feature maps with the combination of higher 
-		resolution features from bottom layers
-	3. repeat for all iterations in the stack
+# 	1. bottom up processing by subsampling the feature maps
+# 	2. top down processing by upsampling the feature maps with the combination of higher
+# 		resolution features from bottom layers
+# 	3. repeat for all iterations in the stack
 
-	4. intermediate supervision at the end of the stack
-		a. convolution layer
-		b. score map
-		c. convolution layer
-		d. convolution layer
+# 	4. intermediate supervision at the end of the stack
+# 		a. convolution layer
+# 		b. score map
+# 		c. convolution layer
+# 		d. convolution layer
 
-Pyramid Residual Module (PRM) Structure:
-	- goal: learn feature pyramids across different levels of DCNNs (able to learn multi-scale 
-	feature pyramids)
+# Pyramid Residual Module (PRM) Structure:
+# 	- goal: learn feature pyramids across different levels of DCNNs (able to learn multi-scale
+# 	feature pyramids)
 
-	- splits into two branches:
-		1. standard convolution layers (no downsampling or upsampling)
-		2. pyramid structure (convolution layers, including downsampling and upsampling steps)
+# 	- splits into two branches:
+# 		1. standard convolution layers (no downsampling or upsampling)
+# 		2. pyramid structure (convolution layers, including downsampling and upsampling steps)
 
-	- PRM-A: produces separate input feature maps for different levels of pyramids
-	- PRM-B: uses shared input for all levels of pyramids
-	- PRM-c: use concatenation instead of addition to combine features generated from pyramids 
-		(similar to inception models)
-	- PRM-D: use dialated convolutions, instead of pooling to build the pyramid
-'''
+# 	- PRM-A: produces separate input feature maps for different levels of pyramids
+# 	- PRM-B: uses shared input for all levels of pyramids
+# 	- PRM-c: use concatenation instead of addition to combine features generated from pyramids
+# 		(similar to inception models)
+# 	- PRM-D: use dialated convolutions, instead of pooling to build the pyramid
 
 
 class PyraNetHourGlass(nn.Module):
-    '''
-        Hourglass Structure: constructs the stacked hourglass structure with PRMs as the building blocks
-    '''
+    # Hourglass Structure: constructs the stacked hourglass structure with PRMs as the building blocks
 
     def __init__(self, nChannels=256, numReductions=4, nModules=2, inputRes=256, baseWidth=6, cardinality=30, poolKernel=(2, 2), poolStride=(2, 2), upSampleKernel=2):
         super(PyraNetHourGlass, self).__init__()
         self.numReductions = numReductions
-        self.nModules = nModules  		# number of modules in each part of the hourglass structure
+        self.nModules = nModules
         self.nChannels = nChannels
         self.poolKernel = poolKernel
         self.poolStride = poolStride
@@ -135,9 +131,7 @@ class PyraNetHourGlass(nn.Module):
 
 
 class PyraNet(nn.Module):
-    '''
-        Base class that structures the network as a whole
-    '''
+    # Base class that structures the network as a whole
 
     def __init__(self, nChannels=256, nStack=4, nModules=2, numReductions=4, baseWidth=6, cardinality=30, nJoints=16, inputRes=256):
         super(PyraNet, self).__init__()
