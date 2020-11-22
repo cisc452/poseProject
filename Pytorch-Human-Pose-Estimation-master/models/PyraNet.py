@@ -36,6 +36,10 @@ Pyramid Residual Module (PRM) Structure:
 	- goal: learn feature pyramids across different levels of DCNNs (able to learn multi-scale 
 	feature pyramids)
 
+	- splits into two branches:
+		1. standard convolution layers (no downsampling or upsampling)
+		2. pyramid structure (convolution layers, including downsampling and upsampling steps)
+
 	- PRM-A: produces separate input feature maps for different levels of pyramids
 	- PRM-B: uses shared input for all levels of pyramids
 	- PRM-c: use concatenation instead of addition to combine features generated from pyramids 
@@ -43,23 +47,16 @@ Pyramid Residual Module (PRM) Structure:
 	- PRM-D: use dialated convolutions, instead of pooling to build the pyramid
 '''
 
-'''
-Hourglass Structure: constructs the hourglass structure with
-	- one iteration of downsampling AND
-	- one iteration of upsampling
-'''
-
 
 class PyraNetHourGlass(nn.Module):
-    """docstring for PyraNetHourGlass"""
+    '''
+        Hourglass Structure: constructs the stacked hourglass structure with PRMs as the building blocks
+    '''
 
     def __init__(self, nChannels=256, numReductions=4, nModules=2, inputRes=256, baseWidth=6, cardinality=30, poolKernel=(2, 2), poolStride=(2, 2), upSampleKernel=2):
-        # initialize network as a Module
-        # Params:	Model - PyraNetHourGlass
-        #			self - self
         super(PyraNetHourGlass, self).__init__()
         self.numReductions = numReductions
-        self.nModules = nModules
+        self.nModules = nModules  		# number of modules in each part of the hourglass structure
         self.nChannels = nChannels
         self.poolKernel = poolKernel
         self.poolStride = poolStride
@@ -68,9 +65,9 @@ class PyraNetHourGlass(nn.Module):
         self.inputRes = inputRes
         self.baseWidth = baseWidth
         self.cardinality = cardinality
-        """
-		For the skip connection, a residual module (or sequence of residuaql modules)
-		"""
+
+        # use one Pyramid Residual Module (or multiple) to perform bottom up processing by subsampling
+        #	the feature maps
         Residualskip = M.ResidualPyramid if numReductions > 1 else M.Residual
         Residualmain = M.ResidualPyramid if numReductions > 2 else M.Residual
         _skip = []
@@ -105,7 +102,6 @@ class PyraNetHourGlass(nn.Module):
                 _num1res.append(Residualmain(
                     self.nChannels, self.nChannels, self.inputRes//2, self.baseWidth, self.cardinality))
 
-            # doesnt seem that important ?
             self.num1res = nn.Sequential(*_num1res)
 
         """
@@ -119,10 +115,7 @@ class PyraNetHourGlass(nn.Module):
 
         self.lowres = nn.Sequential(*_lowres)
 
-        """
-		Upsampling Layer (Can we change this??????)
-		As per Newell's paper upsamping recommended
-		"""
+        # upsampling layer
         self.up = nn.Upsample(scale_factor=self.upSampleKernel)
 
     def forward(self, x):
@@ -141,13 +134,10 @@ class PyraNetHourGlass(nn.Module):
         return out2 + out1
 
 
-'''
-Base class that structures the network as a whole
-'''
-
-
 class PyraNet(nn.Module):
-    """docstring for PyraNet"""
+    '''
+        Base class that structures the network as a whole
+    '''
 
     def __init__(self, nChannels=256, nStack=4, nModules=2, numReductions=4, baseWidth=6, cardinality=30, nJoints=16, inputRes=256):
         super(PyraNet, self).__init__()
@@ -178,13 +168,12 @@ class PyraNet(nn.Module):
 
         _hourglass, _Residual, _lin1, _chantojoints, _lin2, _jointstochan = [], [], [], [], [], []
 
-        # Repeating Stacked Hourglass - repeat for n stacks of hourglass networks
+        # Repeating Stacked Hourglass - repeat for n 'stacked hourglass' networks
         for _ in range(self.nStack):
-            # Hourglass Structure using custom Pyramid Residual Modules as the building blocks
+            # Hourglass Structure using custom Pyramid Residual Modules (PRMs) as the building blocks
             _hourglass.append(PyraNetHourGlass(self.nChannels, self.numReductions,
                                                self.nModules, self.inputRes//4, self.baseWidth, self.cardinality))
             _ResidualModules = []
-
             for _ in range(self.nModules):
                 _ResidualModules.append(M.Residual(
                     self.nChannels, self.nChannels))
