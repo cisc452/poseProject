@@ -27,7 +27,10 @@ class Hourglass(nn.Module):
         For the skip connection, a residual module (or sequence of residuaql modules)
         """
         # residual modules are used to pass the original image to subsequent modules
-        # this is done to maintain the spatial relationship between features
+        # this is done to maintain the spatial relationship between features and solve
+        # the vanishing gradient problem
+        
+        #upper branch
         _skip = []
         for _ in range(self.nModules):
             #add the residual modules to the network
@@ -35,6 +38,7 @@ class Hourglass(nn.Module):
 
         self.skip = nn.Sequential(*_skip)
 
+        #lower branch
         """
         First pooling to go to smaller dimension then pass input through
         Residual Module or sequence of Modules then  and subsequent cases:
@@ -55,11 +59,8 @@ class Hourglass(nn.Module):
             self.hg = Hourglass(self.nChannels, self.numReductions-1, self.nModules, self.poolKernel, self.poolStride)
         else:
             #base case
-            _num1res = []
-            for _ in range(self.nModules):
-                _num1res.append(M.Residual(self.nChannels,self.nChannels))
+            self.hg = M.Residual(self.nChannels,self.nChannels)
 
-            self.num1res = nn.Sequential(*_num1res)
 
         """
         Now another M.Residual Module or sequence of M.Residual Modules
@@ -71,11 +72,8 @@ class Hourglass(nn.Module):
 
         self.lowres = nn.Sequential(*_lowres)
 
-        """
-        Upsampling Layer (Can we change this??????)
-        As per Newell's paper upsamping recommended
-        """
-        self.up = myUpsample()#nn.Upsample(scale_factor = self.upSampleKernel)
+        # upsample
+        self.up = nn.Upsample(scale_factor=upSampleKernel, mode='nearest')
 
 
     def forward(self, x):
@@ -84,13 +82,11 @@ class Hourglass(nn.Module):
         out2 = x
         out2 = self.mp(out2)
         out2 = self.afterpool(out2)
-        if self.numReductions>1:
-            out2 = self.hg(out2)
-        else:
-            out2 = self.num1res(out2)
+        out2 = self.hg(out2)
         out2 = self.lowres(out2)
         out2 = self.up(out2)
 
+        # return the input + the output to feed into the next hourglass
         return out2 + out1
 
 
@@ -134,6 +130,7 @@ class StackedHourGlass(nn.Module):
 		self.jointstochan = nn.ModuleList(_jointstochan)
 
 	def forward(self, x):
+        #preprocess the data
 		x = self.start(x)
 		x = self.res1(x)
 		x = self.mp(x)
@@ -141,9 +138,11 @@ class StackedHourGlass(nn.Module):
 		x = self.res3(x)
 		out = []
 
+        #feed forward the data through the network of stacked hourglasses
 		for i in range(self.nStack):
 			x1 = self.hourglass[i](x)
 			x1 = self.Residual[i](x1)
+            # make prediction
 			x1 = self.lin1[i](x1)
 			out.append(self.chantojoints[i](x1))
 			x1 = self.lin2[i](x1)

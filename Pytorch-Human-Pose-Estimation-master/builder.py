@@ -15,6 +15,7 @@ class Builder(object):
 		else:
 			self.states = None
 	def Model(self):
+		# constructor for the models are called with data transferred from the config files
 		ModelBuilder = getattr(models, self.opts.model)
 		if self.opts.model == 'StackedHourGlass':
 			Model = ModelBuilder(self.opts.nChannels, self.opts.nStack, self.opts.nModules, self.opts.nReductions, self.opts.nJoints)
@@ -33,6 +34,7 @@ class Builder(object):
 		return Model
 
 	def Loss(self):
+		#where the loss function is actually assigned
 		instance = losses.Loss(self.opts)
 		return getattr(instance, self.opts.model)
 

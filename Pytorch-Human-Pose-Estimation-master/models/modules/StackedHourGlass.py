@@ -13,11 +13,12 @@ class BnReluConv(nn.Module):
 				self.stride = stride
 				self.padding = padding
 
-				#apply batch normalization to input to improve training
+				# apply batch normalization to input to improve training
 				self.bn = nn.BatchNorm2d(self.inChannels)
-				#apply convolution
+				# apply convolution
 				self.conv = nn.Conv2d(self.inChannels, self.outChannels, self.kernelSize, self.stride, self.padding)
-				#apply relu activation function
+				# after pooling a layer it is common practice to apply sigmoid or ReLU activation function to increase nonlinearity. 
+				# using ReLU helps alleviate the vanishing gradient problem by having constent slope
 				self.relu = nn.ReLU()
 
 		def forward(self, x):
@@ -35,6 +36,8 @@ class ConvBlock(nn.Module):
 				self.outChannels = outChannels
 				self.outChannelsby2 = outChannels//2
 
+				# bottlenecking restricts the total number of parameters at each layer 
+				# curtailing total memory usage. Filters greater than 3x3 are never used
 				self.cbr1 = BnReluConv(self.inChannels, self.outChannelsby2, 1, 1, 0)
 				self.cbr2 = BnReluConv(self.outChannelsby2, self.outChannelsby2, 3, 1, 1)
 				self.cbr3 = BnReluConv(self.outChannelsby2, self.outChannels, 1, 1, 0)
