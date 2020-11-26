@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 def ImageLoader(opts, split):
     trainset = getattr(datasets, opts.dataset)(opts, split)
     # range(start, stop, step)
-    numSamples = 1000
+    numSamples = 10000
     mask = list(range(0, min(numSamples, len(trainset)), 1))
     trainset_1 = torch.utils.data.Subset(trainset, mask)
 
