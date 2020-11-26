@@ -4,7 +4,7 @@ outputRes: 64
 
 ### PyraNet
 nChannels: 256      # dimension of input
-nStack: 2           # number of stacked hourglass structures
+nStack: 3           # number of stacked hourglass structures
 nModules: 2         # number of residual modules in each stacked hourglass
 nReductions: 4      # number of times downsampling/upsampling is executed for the hourglass as a whole
 baseWidth: 6
