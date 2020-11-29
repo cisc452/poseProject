@@ -4,11 +4,11 @@ outputRes: 64
 
 ### PyraNet
 nChannels: 256      # dimension of input
-nStack: 2           # number of stacked hourglass structures
+nStack: 3           # number of stacked hourglass structures
 nModules: 2         # number of residual modules in each stacked hourglass
 nReductions: 4      # number of times downsampling/upsampling is executed for the hourglass as a whole
 baseWidth: 6
-cardinality:40      # number of times branch 2 (pyramid branch) is repeated within the PRM
+cardinality:30      # number of times branch 2 (pyramid branch) is repeated within the PRM
 
 ###
 data_loader_size = 6
