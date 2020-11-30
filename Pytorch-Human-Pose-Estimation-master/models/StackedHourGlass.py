@@ -59,7 +59,7 @@ class Hourglass(nn.Module):
             self.hg = Hourglass(self.nChannels, self.numReductions-1, self.nModules, self.poolKernel, self.poolStride)
         else:
             #base case
-            self.hg = M.Residual(self.nChannels,self.nChannels, False)
+            self.hg = M.Residual(self.nChannels,self.nChannels)
 
 
         """
@@ -68,7 +68,7 @@ class Hourglass(nn.Module):
 
         _lowres = []
         for _ in range(self.nModules):
-            _lowres.append(M.Residual(self.nChannels,self.nChannels, False))
+            _lowres.append(M.Residual(self.nChannels,self.nChannels))
 
         self.lowres = nn.Sequential(*_lowres)
 
@@ -100,13 +100,12 @@ class StackedHourGlass(nn.Module):
 		self.numReductions = numReductions # number of times the images are downsampled and upsampled
 		self.nJoints = nJoints # number of joints to predict
 
-        #set up pre processing
 		self.start = M.BnReluConv(3, 64, kernelSize = 7, stride = 2, padding = 3)
 
-		self.res1 = M.Residual(64, 128, False)
+		self.res1 = M.Residual(64, 128)
 		self.mp = nn.MaxPool2d(2, 2)
-		self.res2 = M.Residual(128, 128, False)
-		self.res3 = M.Residual(128, self.nChannels, False)
+		self.res2 = M.Residual(128, 128)
+		self.res3 = M.Residual(128, self.nChannels)
 
 		_hourglass, _Residual, _lin1, _chantojoints, _lin2, _jointstochan = [],[],[],[],[],[]
 
