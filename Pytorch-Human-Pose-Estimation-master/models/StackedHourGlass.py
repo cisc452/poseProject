@@ -34,7 +34,7 @@ class Hourglass(nn.Module):
         _skip = []
         for _ in range(self.nModules):
             #add the residual modules to the network
-            _skip.append(M.Residual(self.nChannels, self.nChannels, False))
+            _skip.append(M.Residual(self.nChannels, self.nChannels))
 
         self.skip = nn.Sequential(*_skip)
 
@@ -50,7 +50,7 @@ class Hourglass(nn.Module):
 
         _afterpool = []
         for _ in range(self.nModules):
-            _afterpool.append(M.Residual(self.nChannels, self.nChannels, False))
+            _afterpool.append(M.Residual(self.nChannels, self.nChannels))
 
         self.afterpool = nn.Sequential(*_afterpool)
 
@@ -114,7 +114,7 @@ class StackedHourGlass(nn.Module):
 			_hourglass.append(Hourglass(self.nChannels, self.numReductions, self.nModules))
 			_ResidualModules = []
 			for _ in range(self.nModules):
-				_ResidualModules.append(M.Residual(self.nChannels, self.nChannels, False))
+				_ResidualModules.append(M.Residual(self.nChannels, self.nChannels))
 			_ResidualModules = nn.Sequential(*_ResidualModules)
 			_Residual.append(_ResidualModules)
 			_lin1.append(M.BnReluConv(self.nChannels, self.nChannels))
@@ -122,7 +122,6 @@ class StackedHourGlass(nn.Module):
 			_lin2.append(nn.Conv2d(self.nChannels, self.nChannels,1))
 			_jointstochan.append(nn.Conv2d(self.nJoints,self.nChannels,1))
 
-        # intermediate supervision at the end of the stack
 		self.hourglass = nn.ModuleList(_hourglass)
 		self.Residual = nn.ModuleList(_Residual)
 		self.lin1 = nn.ModuleList(_lin1)

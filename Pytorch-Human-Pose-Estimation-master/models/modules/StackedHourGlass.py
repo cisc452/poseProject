@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class BnReluConv(nn.Module):
-		"""batch normalizes applies 2d convolution then the relu activation"""
+		"""docstring for BnReluConv"""
 		def __init__(self, inChannels, outChannels, kernelSize = 1, stride = 1, padding = 0):
 				super(BnReluConv, self).__init__()
 				self.inChannels = inChannels
@@ -27,37 +27,9 @@ class BnReluConv(nn.Module):
 				x = self.conv(x)
 				return x
 
-class DenselyConnectedConvBlock(nn.Module):
-	def __init__(self, in_channels):    
-		super(DenselyConnectedConvBlock, self).__init__()
-		self.relu = nn.ReLU(inplace = True)
-		self.bn = nn.BatchNorm2d(num_channels = in_channels)
-		
-		self.conv1 = nn.Conv2d(in_channels = in_channels, out_channels = 32, kernel_size = 3, stride = 1, padding = 1)
-		self.conv2 = nn.Conv2d(in_channels = 32, out_channels = 32, kernel_size = 3, stride = 1, padding = 1)
-		self.conv3 = nn.Conv2d(in_channels = 64, out_channels = 32, kernel_size = 3, stride = 1, padding = 1)
-		self.conv4 = nn.Conv2d(in_channels = 96, out_channels = 32, kernel_size = 3, stride = 1, padding = 1)
-		self.conv5 = nn.Conv2d(in_channels = 128, out_channels = 32, kernel_size = 3, stride = 1, padding = 1)  
-		
-	def forward(self, x):
-		bn = self.bn(x) 
-		conv1 = self.relu(self.conv1(bn))
-		conv2 = self.relu(self.conv2(conv1))
-		# Concatenate in channel dimension
-		c2_dense = self.relu(torch.cat([conv1, conv2], 1))   
-		conv3 = self.relu(self.conv3(c2_dense))
-		c3_dense = self.relu(torch.cat([conv1, conv2, conv3], 1))
-
-		conv4 = self.relu(self.conv4(c3_dense)) 
-		c4_dense = self.relu(torch.cat([conv1, conv2, conv3, conv4], 1))
-
-		conv5 = self.relu(self.conv5(c4_dense))
-		c5_dense = self.relu(torch.cat([conv1, conv2, conv3, conv4, conv5], 1))
-
-		return c5_dense
 
 class ConvBlock(nn.Module):
-		"""applies bottleneck convolution"""
+		"""docstring for ConvBlock"""
 		def __init__(self, inChannels, outChannels):
 				super(ConvBlock, self).__init__()
 				self.inChannels = inChannels
@@ -77,7 +49,7 @@ class ConvBlock(nn.Module):
 				return x
 
 class SkipLayer(nn.Module):
-		"""SkipLayer: implements the skipping of the subsampling and upsampling"""
+		"""docstring for SkipLayer"""
 		def __init__(self, inChannels, outChannels):
 				super(SkipLayer, self).__init__()
 				self.inChannels = inChannels
@@ -93,15 +65,12 @@ class SkipLayer(nn.Module):
 				return x
 
 class Residual(nn.Module):
-		"""stacked hourglass residual modules consist of batch normalization followed by convolution and relu. the skip layer takes the input of this residual and passes it to the output of the residual"""
-		def __init__(self, inChannels, outChannels, useDenseBlock):
+		"""docstring for Residual"""
+		def __init__(self, inChannels, outChannels):
 				super(Residual, self).__init__()
 				self.inChannels = inChannels
 				self.outChannels = outChannels
-				if (useDenseBlock):
-					self.cb = DenselyConnectedConvBlock(inChannels)
-				else:
-					self.cb = ConvBlock(inChannels, outChannels)
+				self.cb = ConvBlock(inChannels, outChannels)
 				self.skip = SkipLayer(inChannels, outChannels)
 
 		def forward(self, x):
@@ -110,3 +79,10 @@ class Residual(nn.Module):
 				out = out + self.cb(x)
 				out = out + self.skip(x)
 				return out
+
+class myUpsample(nn.Module):
+	 def __init__(self):
+		 super(myUpsample, self).__init__()
+		 pass
+	 def forward(self, x):
+		 return x[:, :, :, None, :, None].expand(-1, -1, -1, 2, -1, 2).reshape(x.size(0), x.size(1), x.size(2)*2, x.size(3)*2)
