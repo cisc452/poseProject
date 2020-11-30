@@ -48,7 +48,12 @@ class Builder(object):
 			
 	def Optimizer(self, Model):
 		TrainableParams = filter(lambda p: p.requires_grad, Model.parameters())
-		Optimizer = getattr(torch.optim, self.opts.optimizer_type)(TrainableParams, lr = self.opts.LR, alpha = 0.99, eps = 1e-8)
+
+		if (self.opts.optimizer_type != 'Adam'):
+			Optimizer = getattr(torch.optim, self.opts.optimizer_type)(TrainableParams, lr = self.opts.LR, alpha = 0.99, eps = 1e-8)
+		else:
+			Optimizer = getattr(torch.optim, self.opts.optimizer_type)(TrainableParams, lr = self.opts.LR, betas=(0.9, 0.999), eps = 1e-8)
+		
 		if self.states is not None and self.opts.loadOptim:
 			Optimizer.load_state_dict(states['optimizer_state'])
 			if self.opts.dropPreLoaded:
