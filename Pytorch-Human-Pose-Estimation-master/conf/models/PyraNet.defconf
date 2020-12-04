@@ -8,7 +8,7 @@ nStack: 2           # number of stacked hourglass structures
 nModules: 2         # number of residual modules in each stacked hourglass
 nReductions: 4      # number of times downsampling/upsampling is executed for the hourglass as a whole
 baseWidth: 6
-cardinality:20      # number of times branch 2 (pyramid branch) is repeated within the PRM
+cardinality:30     # number of times branch 2 (pyramid branch) is repeated within the PRM
 
 ###
 data_loader_size = 6
@@ -17,7 +17,7 @@ data_loader_size = 6
 #loadModel = ../../trainedModels/simpleHG.pth
 
 mini_batch_count: 1
-optimizer_type: RMSprop
+optimizer_type: Adam
 LR: 2.5e-4
 
 dropLR: 50
