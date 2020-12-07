@@ -24,4 +24,4 @@ dropLR: 50
 dropMag: 0.1
 
 valInterval: 4
-saveInterval: 8
+saveInterval: 1
