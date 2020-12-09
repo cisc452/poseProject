@@ -17,8 +17,8 @@ mini_batch_count: 16
 optimizer_type: AdamW
 LR: 2.5e-4
 
-#dropLR: 500
-#dropMag: 0.1
+dropLR: 500
+dropMag: 0.1
 
 valInterval: 4
 saveInterval: 1
