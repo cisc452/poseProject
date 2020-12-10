@@ -80,9 +80,4 @@ class Residual(nn.Module):
 				out = out + self.skip(x)
 				return out
 
-class myUpsample(nn.Module):
-	 def __init__(self):
-		 super(myUpsample, self).__init__()
-		 pass
-	 def forward(self, x):
-		 return x[:, :, :, None, :, None].expand(-1, -1, -1, 2, -1, 2).reshape(x.size(0), x.size(1), x.size(2)*2, x.size(3)*2)
+

@@ -5,12 +5,6 @@ import torch.nn.functional as F
 import models.modules.StackedHourGlass as M
 
 
-class myUpsample(nn.Module):
-	 def __init__(self):
-		 super(myUpsample, self).__init__()
-		 pass
-	 def forward(self, x):
-		 return x[:, :, :, None, :, None].expand(-1, -1, -1, 2, -1, 2).reshape(x.size(0), x.size(1), x.size(2)*2, x.size(3)*2)
 
 
 class Hourglass(nn.Module):
@@ -24,7 +18,7 @@ class Hourglass(nn.Module):
         self.poolStride = poolStride
         self.upSampleKernel = upSampleKernel
         """
-        For the skip connection, a residual module (or sequence of residuaql modules)
+        For the skip connection, a residual module (or sequence of residual modules)
         """
         # residual modules are used to pass the original image to subsequent modules
         # this is done to maintain the spatial relationship between features and solve
