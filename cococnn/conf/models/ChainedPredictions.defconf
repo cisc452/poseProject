@@ -1,0 +1,24 @@
+model = ChainedPredictions
+TargetType = heatmap
+outputRes = 32
+
+### Chained
+modelName: resnet34
+ohKernel: 1
+hhKernel: 1
+
+data_loader_size = 16
+
+loadModel = /content/gdrive/MyDrive/mimi/logs/model_4.pth
+#loadEpoch = True
+
+mini_batch_count: 1
+optimizer_type: Adam
+LR: 3e-4
+dropLR: 50
+dropMag: 0.1
+
+valInterval: 1
+saveInterval: 1
+
+outputRes = 32
