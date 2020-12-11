@@ -3,6 +3,10 @@ import torchvision
 import torch.nn as nn
 import torch.nn.functional as F 
 
+# Does 3 things in this order:
+#	Batch Normilization
+#	ReLu
+#	Convolution
 class BnReluConv(nn.Module):
 	"""docstring for BnReluConv"""
 	def __init__(self, inChannels, outChannels, kernelSize = 1, stride = 1, padding = 0):
@@ -23,6 +27,7 @@ class BnReluConv(nn.Module):
 		x = self.conv(x)
 		return x
 
+# Same as BnReluConv but with a max pooling layer
 class BnReluPoolConv(nn.Module):
 		"""docstring for BnReluPoolConv"""
 		def __init__(self, inChannels, outChannels, kernelSize = 1, stride = 1, padding = 0):
@@ -109,6 +114,8 @@ class Residual(nn.Module):
 		out = out + self.skip(x)
 		return out
 
+# Residual Hourglass Unit
+# Works like default residual unit, but with an added pooling convolution
 class HourGlassResidual(nn.Module):
 	"""docstring for HourGlassResidual"""
 	def __init__(self, inChannels, outChannels):
@@ -127,6 +134,7 @@ class HourGlassResidual(nn.Module):
 		out = out + self.skip(x)
 		return out
 
+# Generates an attention map used to estimate body joints
 class AttentionIter(nn.Module):
 	"""docstring for AttentionIter"""
 	def __init__(self, nChannels, LRNSize, IterSize):
@@ -162,6 +170,8 @@ class AttentionIter(nn.Module):
 			out = u + torch.sigmoid(out)
 		return (x * out.expand_as(x))
 
+# Conditional Random Field is used to model correlations
+# between neighboring regions in the attention map
 class AttentionPartsCRF(nn.Module):
 	"""docstring for AttentionPartsCRF"""
 	def __init__(self, nChannels, LRNSize, IterSize, nJoints):

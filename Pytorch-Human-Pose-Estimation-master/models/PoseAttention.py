@@ -18,6 +18,8 @@ class HourglassAttention(nn.Module):
 		For the skip connection, a Residual module (or sequence of residuaql modules)
 		"""
 
+		# Residual modules are added here
+		# They are used to pass the original image at the initial resolution to other parts of the model
 		_skip = []
 		for _ in range(self.nModules):
 			_skip.append(M.Residual(self.nChannels, self.nChannels))
@@ -31,14 +33,15 @@ class HourglassAttention(nn.Module):
 			or pass through Residual Module or sequence of Modules
 		"""
 
+		# Pool image
+		# Downsampling to lower resolutions to find different features
 		self.mp = nn.MaxPool2d(self.poolKernel, self.poolStride)
-
 		_afterpool = []
 		for _ in range(self.nModules):
 			_afterpool.append(M.Residual(self.nChannels, self.nChannels))
-
 		self.afterpool = nn.Sequential(*_afterpool)
 
+		
 		if (numReductions > 1):
 			self.hg = HourglassAttention(self.nChannels, self.numReductions-1, self.nModules, self.poolKernel, self.poolStride)
 		else:
@@ -58,13 +61,14 @@ class HourglassAttention(nn.Module):
 
 		self.lowres = nn.Sequential(*_lowres)
 
-		"""
-		Upsampling Layer (Can we change this??????)
-		As per Newell's paper upsamping recommended
-		"""
+		# Upsampling
+		# Downsample and then upsampling is where the"hourglass" gets its name 
 		self.up = nn.Upsample(scale_factor = self.upSampleKernel)
 
 
+	# Forward propagate
+	# We need to return the initial input (x) along with the output
+	# so we don't lose information
 	def forward(self, x):
 		out1 = x
 		out1 = self.skip(out1)
@@ -85,14 +89,13 @@ class PoseAttention(nn.Module):
 	"""docstring for PoseAttention"""
 	def __init__(self, nChannels, nStack, nModules, numReductions, nJoints, LRNSize, IterSize):
 		super(PoseAttention, self).__init__()
-		self.nChannels = nChannels
-		self.nStack = nStack
-		self.nModules = nModules
-		self.numReductions = numReductions
-		self.nJoints = nJoints
-		self.LRNSize = LRNSize
-		self.IterSize = IterSize
-		self.nJoints = nJoints
+		self.nChannels = nChannels			# Input channels (256 for coco)
+		self.nStack = nStack				# Hourglass stacks (2 - Large effect of training time)
+		self.nModules = nModules			# Residual hourglass units (2)
+		self.numReductions = numReductions	# How many times the hourglasses down/upsample the images (4)
+		self.nJoints = nJoints				# Number of joints we're predicting (16 for coco)
+		self.LRNSize = LRNSize				# Local response Normalization layers (1)
+		self.IterSize = IterSize			# How many times we're iterating through the attention part (3)
 
 		self.start = M.BnReluConv(3, 64, kernelSize = 7, stride = 2, padding = 3)
 
@@ -103,6 +106,7 @@ class PoseAttention(nn.Module):
 
 		_hourglass, _Residual, _lin1, _attiter, _chantojoints, _lin2, _jointstochan = [], [],[],[],[],[],[]
 
+		# Iterate through each hourglass in the stack
 		for i in range(self.nStack):
 			_hourglass.append(HourglassAttention(self.nChannels, self.numReductions, self.nModules))
 			_ResidualModules = []
@@ -112,6 +116,8 @@ class PoseAttention(nn.Module):
 			_Residual.append(_ResidualModules)
 			_lin1.append(M.BnReluConv(self.nChannels, self.nChannels))
 			_attiter.append(M.AttentionIter(self.nChannels, self.LRNSize, self.IterSize))
+
+			# Add Sequential for lower half of stacks, CRF for upper half
 			if i<self.nStack//2:
 				_chantojoints.append(
 						nn.Sequential(
@@ -131,6 +137,8 @@ class PoseAttention(nn.Module):
 		self.lin2 = nn.ModuleList(_lin2)
 		self.jointstochan = nn.ModuleList(_jointstochan)
 
+	# Forward propagate
+	# Here, we can just return the network's output
 	def forward(self, x):
 		x = self.start(x)
 		x = self.res1(x)

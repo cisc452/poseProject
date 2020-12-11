@@ -3,6 +3,10 @@ import torchvision
 import torch.nn as nn
 import torch.nn.functional as F
 
+# Does 3 things in this order:
+#	Batch Normilization
+#	ReLu
+#	Convolution
 class BnReluConv(nn.Module):
 		"""docstring for BnReluConv"""
 		def __init__(self, inChannels, outChannels, kernelSize = 1, stride = 1, padding = 0):
@@ -64,6 +68,7 @@ class SkipLayer(nn.Module):
 						x = self.conv(x)
 				return x
 
+# Residual Hourglass Unit
 class Residual(nn.Module):
 		"""docstring for Residual"""
 		def __init__(self, inChannels, outChannels):
